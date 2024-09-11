@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Anameli</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: linear-gradient(45deg, cyan, yellow);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .menu-container {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            margin: 50px auto;
+            color: white;
+            text-align: center;
+            border-radius: 15px;
+            width: 300px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: dodgerblue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: deepskyblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <h2>Painel de Controle</h2>
+        <form action="/cadastrar" method="GET">
+            <button type="submit">Cadastrar Usuário</button>
+        </form>
+        <form action="/editar" method="GET">
+            <button type="submit">Editar Usuário</button>
+        </form>
+        <form action="/bloquear" method="GET">
+            <button type="submit">Bloquear Usuário</button>
+        </form>
+        <form action="/excluir" method="GET">
+            <button type="submit">Excluir Usuário</button>
+        </form>
+        <form action="/backup" method="GET">
+            <button type="submit">Backup do Banco de Dados</button>
+        </form>
+    </div>
+
+    <script>
+        // Função para chamar a rota de logout ao fechar ou atualizar a aba
+        window.onbeforeunload = function () {
+            navigator.sendBeacon("/logout");
+        };
+    </script>
+</body>
+</html>
