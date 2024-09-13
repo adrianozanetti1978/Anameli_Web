@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excluir Usuário</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: linear-gradient(45deg, cyan, yellow);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        form {
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            width: calc(100% - 24px);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: none;
+            font-size: 14px;
+        }
+        button {
+            background-color: dodgerblue;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: deepskyblue;
+            cursor: pointer;
+        }
+        .message, .error {
+            background-color: #4CAF50; /* Verde para mensagens de sucesso */
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .error {
+            background-color: #f44336; /* Vermelho para mensagens de erro */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #333;
+            color: white;
+        }
+        a button {
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Excluir Usuário</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Formulário de Busca -->
+        <form method="GET" action="{{ url_for('main.excluir_usuario') }}">
+            <label for="search">Buscar Usuário:</label>
+            <input type="text" id="search" name="search" value="{{ search_query }}" placeholder="Digite o nome de usuário">
+            <button type="submit">Buscar</button>
+        </form>
+
+        <!-- Tabela de Usuários Encontrados -->
+        {% if users %}
+            <form method="POST" action="{{ url_for('main.excluir_usuario') }}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome de Usuário</th>
+                            <th>Email</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <button type="submit" name="user_id" value="{{ user.id }}">Excluir</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        {% else %}
+            <p>Nenhum usuário encontrado para a busca "{{ search_query }}".</p>
+        {% endif %}
+
+        <!-- Botão para voltar ao dashboard -->
+        <a href="{{ url_for('main.dashboard') }}"><button>Voltar para o Dashboard</button></a>
+    </div>
+
+    <script>
+        // Função para remover a mensagem após 4 segundos
+        window.onload = function() {
+            setTimeout(function() {
+                var messages = document.querySelectorAll('.message, .error');
+                messages.forEach(function(message) {
+                    message.style.opacity = '0'; // Transição de opacidade
+                    setTimeout(function() {
+                        message.style.display = 'none'; // Remove o elemento após a transição
+                    }, 1000); // Tempo da transição de opacidade
+                });
+            }, 4000); // 4000ms = 4s
+
+            // Função para chamar a rota de logout ao fechar ou atualizar a aba
+            window.onbeforeunload = function () {
+                navigator.sendBeacon("/logout");
+            };
+        };
+    </script>
+</body>
+</html>
