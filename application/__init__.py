@@ -1,4 +1,3 @@
-# app.py (ou create_app)
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -9,9 +8,7 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__, template_folder='templates')  # Especifica o diretório de templates e estático
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', '238779Adri')  # Substitua por uma chave secreta real
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:238779Adri@localhost:5432/usuario_db')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config.from_object('config.Config')  # Carrega a configuração do config.py
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -26,3 +23,6 @@ def create_app():
         db.create_all()
 
     return app
+
+# Exporta a instância da aplicação
+app = create_app()
