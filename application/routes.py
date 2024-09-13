@@ -39,7 +39,7 @@ def dashboard():
     else:
         return redirect(url_for('main.login'))
 
-@main.route('/logout')
+@main.route('/logout', methods=['POST'])
 def logout():
     # Remove o usuário da sessão para deslogar
     session.pop('username', None)

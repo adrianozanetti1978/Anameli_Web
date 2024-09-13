@@ -53,7 +53,7 @@
     <script>
         // Função para chamar a rota de logout ao fechar ou atualizar a aba
         window.onbeforeunload = function () {
-            navigator.sendBeacon("/logout");
+            navigator.sendBeacon("/logout", ""); // Envia uma solicitação POST
         };
     </script>
 </head>
