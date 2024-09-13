@@ -1,5 +1,4 @@
-# routes.py
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session, send_file
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, send_file, current_app as app, jsonify
 from . import db
 from application.models import Account, NewAccount  # Importação de Account e NewAccount
 import os
@@ -8,9 +7,11 @@ import tempfile
 
 main = Blueprint('main', __name__)
 
+
 @main.route('/')
 def home():
     return redirect(url_for('main.login'))
+
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -31,6 +32,7 @@ def login():
 
     return render_template('login.html')
 
+
 @main.route('/dashboard')
 def dashboard():
     # Verifica se o usuário está logado
@@ -39,12 +41,21 @@ def dashboard():
     else:
         return redirect(url_for('main.login'))
 
+
 @main.route('/logout', methods=['POST'])
 def logout():
     # Remove o usuário da sessão para deslogar
     session.pop('username', None)
-    flash('Você foi desconectado.', 'info')
-    return redirect(url_for('main.login'))
+    
+    # Verifica se é uma solicitação AJAX (usada para logout ao fechar a aba)
+    if request.is_json:  # ou use request.is_xhr, dependendo da versão do Flask
+        # Retorna uma resposta JSON
+        return jsonify({'status': 'success', 'message': 'Você foi desconectado.'})
+    else:
+        # Se não for uma requisição AJAX, continua o fluxo normal de logout
+        flash('Você foi desconectado.', 'info')
+        return redirect(url_for('main.login'))
+
 
 @main.route('/cadastrar', methods=['GET', 'POST'])
 def cadastrar_usuario():
@@ -52,7 +63,13 @@ def cadastrar_usuario():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
         
+        # Verifica se as senhas coincidem
+        if password != confirm_password:
+            flash('As senhas não coincidem. Tente novamente.', 'error')
+            return redirect(url_for('main.cadastrar_usuario'))
+
         # Cria nova conta na tabela NewAccount
         new_account = NewAccount(username=username, email=email, is_active=True)
         new_account.set_password(password)
@@ -60,12 +77,13 @@ def cadastrar_usuario():
         db.session.commit()
         
         # Armazena a mensagem de sucesso na sessão
-        session['message'] = 'Usuário cadastrado com sucesso!'
+        flash('Usuário cadastrado com sucesso!', 'success')
         return redirect(url_for('main.cadastrar_usuario'))
 
     # Recupera a mensagem da sessão
     message = session.pop('message', None)
     return render_template('cadastrar.html', message=message)
+
 
 @main.route('/editar', methods=['GET', 'POST'])
 def editar_usuario():
@@ -122,10 +140,10 @@ def bloquear_usuario():
         if user:
             if action == 'block':
                 user.is_active = False
-                flash("Usuário bloqueado com sucesso.", 'message')
+                flash("Usuário bloqueado com sucesso.", 'success')
             elif action == 'unblock':
                 user.is_active = True
-                flash("Usuário desbloqueado com sucesso.", 'message')
+                flash("Usuário desbloqueado com sucesso.", 'success')
             db.session.commit()
         else:
             flash("Usuário não encontrado.", 'error')
@@ -143,19 +161,20 @@ def bloquear_usuario():
     
     return render_template('bloquear.html', users=users, search_query=search_query)
 
+
 @main.route('/excluir', methods=['GET', 'POST'])
 def excluir_usuario():
     search_query = request.args.get('search', '')
     user_id = request.args.get('user_id')
 
-    print(f"User ID recebido: {user_id}")  # Adicione esta linha para depuração
+
     user = None
     if user_id:
         user = NewAccount.query.get_or_404(user_id)
 
     if request.method == 'POST':
         user_id = request.form.get('user_id')
-        print(f"User ID do formulário: {user_id}")  # Adicione esta linha para depuração
+
         if user_id:
             user = NewAccount.query.get(user_id)
             if user:
@@ -175,16 +194,22 @@ def excluir_usuario():
 
     return render_template('excluir.html', users=users, search_query=search_query, selected_user_id=user_id)
 
+
 @main.route('/backup')
 def backup():
-    # Obtenha informações do banco de dados das variáveis de ambiente
-    db_user = os.environ.get('DB_USER')
-    db_password = os.environ.get('DB_PASSWORD')
-    db_host = os.environ.get('DB_HOST')
-    db_port = os.environ.get('DB_PORT')
-    db_name = os.environ.get('DB_NAME')
+    db_user = os.environ.get('DB_USER', 'ucndp8ar8r14jk')
+    db_password = os.environ.get('DB_PASSWORD', 'pefb5e67dfe258b22240c603af0d5af76547ef666398ed7352939fb6e7b352fd7')
+    db_host = os.environ.get('DB_HOST', 'cat670aihdrkt1.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com')
+    db_port = os.environ.get('DB_PORT', '5432')
+    db_name = os.environ.get('DB_NAME', 'df3tf0rro1mmbn')
+
+    # Adicionar logs de depuração
+    app.logger.debug(f"DB_USER: {db_user}")
+    app.logger.debug(f"DB_HOST: {db_host}")
+    app.logger.debug(f"DB_NAME: {db_name}")
 
     if not all([db_user, db_password, db_host, db_port, db_name]):
+        app.logger.error("Falta configuração de uma ou mais variáveis de ambiente.")
         return "Erro: Falta configuração de uma ou mais variáveis de ambiente.", 500
 
     backup_file = tempfile.NamedTemporaryFile(delete=False, suffix='.sql')
@@ -205,9 +230,11 @@ def backup():
     try:
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
+        app.logger.error(f"Erro ao criar backup: {e}")
         return f"Erro ao criar backup: {e}", 500
     finally:
-        del os.environ['PGPASSWORD']
+        if 'PGPASSWORD' in os.environ:
+            del os.environ['PGPASSWORD']
 
     response = send_file(
         backup_file.name,

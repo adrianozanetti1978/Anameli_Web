@@ -91,7 +91,10 @@
             <button type="submit" name="action" value="unblock">Desbloquear Usuário</button>
         </form>
 
-        <a href="{{ url_for('main.dashboard') }}"><button>Voltar para página principal</button></a>
+        <!-- Botão para voltar ao menu principal -->
+        <form action="{{ url_for('main.dashboard') }}" method="get">
+            <button type="submit">Voltar ao Menu Principal</button>
+        </form>
     </div>
 
     <script>

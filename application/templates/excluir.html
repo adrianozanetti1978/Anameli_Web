@@ -78,9 +78,23 @@
             background-color: #333;
             color: white;
         }
+        a {
+            text-decoration: none;
+        }
         a button {
             text-decoration: none;
             display: inline-block;
+            background-color: dodgerblue;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        a button:hover {
+            background-color: deepskyblue;
         }
     </style>
 </head>
@@ -134,7 +148,7 @@
         {% endif %}
 
         <!-- Botão para voltar ao dashboard -->
-        <a href="{{ url_for('main.dashboard') }}"><button>Voltar para página principal</button></a>
+        <a href="{{ url_for('main.dashboard') }}"><button type="button">Voltar para página principal</button></a>
     </div>
 
     <script>
@@ -149,11 +163,6 @@
                     }, 1000); // Tempo da transição de opacidade
                 });
             }, 4000); // 4000ms = 4s
-
-            // Função para chamar a rota de logout ao fechar ou atualizar a aba
-            window.onbeforeunload = function () {
-                navigator.sendBeacon("/logout");
-            };
         };
     </script>
 </body>

@@ -16,34 +16,28 @@
         }
         .form-container {
             background-color: rgba(0, 0, 0, 0.8);
-            padding: 15px;
+            padding: 20px;
             border-radius: 15px;
             color: white;
             text-align: center;
-            width: 600px;
+            width: 400px; /* Ajuste para um melhor alinhamento */
         }
         input, select {
             display: block;
-            width: 95%;
-            padding: 7px;
-            margin: 10px;
-            border-radius: 15px;
-            border: 5px solid #ddd;
-        }
-        input {
-            font-size: 15px;
-        }
-        select {
+            width: 90%;
+            padding: 10px;
+            margin: 10px auto;
+            border-radius: 5px;
+            border: 1px solid #ddd;
             font-size: 15px;
         }
         button {
             background-color: dodgerblue;
             border: none;
-            padding: 10px;
-            border-radius: 15px;
+            padding: 15px;
+            border-radius: 10px;
             color: white;
             font-size: 15px;
-            margin: 10px 0;
             cursor: pointer;
         }
         button:hover {
@@ -110,7 +104,7 @@
             <p>Selecione um usuário para editar.</p>
         {% endif %}
 
-        <a href="{{ url_for('main.dashboard') }}"><button>Voltar para página principal</button></a>
+        <a href="{{ url_for('main.dashboard') }}"><button type="button">Voltar para página principal</button></a>
     </div>
 
     <script>
@@ -127,9 +121,16 @@
             }, 4000); // 4000ms = 4s
         };
 
-        // Função para chamar a rota de logout ao fechar ou atualizar a aba
-        window.onbeforeunload = function () {
-            navigator.sendBeacon("/logout");
+        // Função para chamar a rota de logout ao fechar ou atualizar a aba via AJAX
+        window.onbeforeunload = function (e) {
+            // Tenta usar sendBeacon para logout (método mais leve)
+            navigator.sendBeacon("/logout", JSON.stringify({logout: true}));
+
+            // Caso sendBeacon falhe ou o navegador não o suporte, usar AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/logout", true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(JSON.stringify({logout: true}));
         };
     </script>
 </body>

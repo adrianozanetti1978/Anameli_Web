@@ -40,10 +40,12 @@
 <body>
     <div class="form-container">
         <h2>Backup do Banco de Dados</h2>
-        <a href="/backup">
-            <button type="button">Realizar Backup</button>
+        <form action="{{ url_for('main.perform_backup') }}" method="post">
+            <button type="submit">Realizar Backup</button>
+        </form>
+        <a href="{{ url_for('main.dashboard') }}">
+            <button type="button">Voltar para página principal</button>
         </a>
-        <a href="{{ url_for('main.dashboard') }}"><button>Voltar para página principal</button></a>
     </div>
 
     <script>

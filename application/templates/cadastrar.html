@@ -50,14 +50,32 @@
             margin-bottom: 20px;
             border-radius: 5px;
         }
+        .error {
+            background-color: #f44336; /* Red */
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
     </style>
+
+    <script>
+        // Função para enviar uma solicitação de logout quando a aba for fechada
+        window.addEventListener('beforeunload', function (e) {
+            navigator.sendBeacon('/logout', JSON.stringify({ logout: true }));
+        });
+    </script>
 </head>
 <body>
     <div class="form-container">
         <h2>Cadastrar Usuário</h2>
         
         {% if message %}
-            <div id="message" class="message">{{ message }}</div>
+            <div class="message">{{ message }}</div>
+        {% endif %}
+        
+        {% if 'error' in get_flashed_messages(with_categories=True) %}
+            <div class="error">{{ get_flashed_messages(category_filter=['error'])[0] }}</div>
         {% endif %}
         
         <form action="/cadastrar" method="POST">
@@ -70,22 +88,5 @@
         
         <a href="{{ url_for('main.dashboard') }}"><button>Voltar para página principal</button></a>
     </div>
-
-    <script>
-        // Função para chamar a rota de logout ao fechar ou atualizar a aba
-        window.onbeforeunload = function () {
-            navigator.sendBeacon("/logout");
-        };
-
-        // Remove a mensagem após 10 segundos
-        window.onload = function() {
-            const message = document.getElementById('message');
-            if (message) {
-                setTimeout(() => {
-                    message.style.display = 'none';
-                }, 10000); // 10000 milissegundos = 10 segundos
-            }
-        };
-    </script>
 </body>
 </html>

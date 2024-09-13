@@ -60,10 +60,21 @@
     </div>
 
     <script>
-        // Função para chamar a rota de logout ao fechar ou atualizar a aba
-        window.onbeforeunload = function () {
-            navigator.sendBeacon("/logout");
-        };
+        let isUnload = false;
+
+        // Marcar a aba como não visível quando a página estiver prestes a ser fechada
+        window.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'hidden') {
+                isUnload = true;
+            }
+        });
+
+        // Enviar a solicitação de logout se a página for realmente fechada
+        window.addEventListener('beforeunload', function (e) {
+            if (isUnload) {
+                navigator.sendBeacon('/logout', JSON.stringify({ logout: true }));
+            }
+        });
     </script>
 </body>
 </html>
