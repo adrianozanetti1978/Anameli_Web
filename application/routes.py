@@ -177,21 +177,18 @@ def excluir_usuario():
 
 @main.route('/backup')
 def backup():
-    # Informações do banco de dados (extraídas da classe Config)
-    db_user = 'postgres'
-    db_password = '238779Adri'
-    db_host = 'localhost'
-    db_port = '5432'
-    db_name = 'usuario_db'
+    # Obtenha informações do banco de dados das variáveis de ambiente
+    db_user = os.environ.get('DB_USER')
+    db_password = os.environ.get('DB_PASSWORD')
+    db_host = os.environ.get('DB_HOST')
+    db_port = os.environ.get('DB_PORT')
+    db_name = os.environ.get('DB_NAME')
 
-    # Verifique se todas as variáveis de ambiente estão definidas
     if not all([db_user, db_password, db_host, db_port, db_name]):
         return "Erro: Falta configuração de uma ou mais variáveis de ambiente.", 500
 
-    # Defina o nome do arquivo temporário
     backup_file = tempfile.NamedTemporaryFile(delete=False, suffix='.sql')
 
-    # Comando para realizar o backup do banco de dados
     command = [
         'pg_dump',
         '-U', db_user,
@@ -203,26 +200,21 @@ def backup():
         db_name
     ]
 
-    # Define a variável de ambiente PGPASSWORD para evitar solicitar a senha interativamente
     os.environ['PGPASSWORD'] = db_password
 
     try:
-        # Execute o comando de backup
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
         return f"Erro ao criar backup: {e}", 500
     finally:
-        # Limpar a variável de ambiente PGPASSWORD
         del os.environ['PGPASSWORD']
 
-    # Enviar o arquivo para o cliente
     response = send_file(
         backup_file.name,
         as_attachment=True,
-        download_name='backup.sql'  # Nome do arquivo de download
+        download_name='backup.sql'
     )
 
-    # Remover o arquivo temporário após o envio
     @response.call_on_close
     def cleanup():
         os.remove(backup_file.name)
