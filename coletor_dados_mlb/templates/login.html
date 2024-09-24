@@ -1,0 +1,88 @@
+# login.html
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Coletor de Dados MLB</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: linear-gradient(45deg, cyan, yellow);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        div {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            font-size: 15px;
+        }
+        button {
+            background-color: dodgerblue;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: deepskyblue;
+            cursor: pointer;
+        }
+        .flash-message {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .flash-message.success {
+            color: lightgreen;
+        }
+        .flash-message.error {
+            color: lightcoral;
+        }
+    </style>
+    <script>
+        // Função para chamar a rota de logout ao fechar ou atualizar a aba
+        window.onbeforeunload = function () {
+            navigator.sendBeacon("/logout", ""); // Envia uma solicitação POST
+        };
+    </script>
+</head>
+<body>
+    <div>
+        <h1>Bem-vindo ao Coletor de Dados MLB!</h1>
+        <h3>Login</h3>
+        <form method="post">
+            <input type="text" id="username" name="username" placeholder="Usuário" required>
+            <input type="password" id="password" name="password" placeholder="Senha" required>
+            <button type="submit">Login</button>
+        </form>
+        {% if get_flashed_messages() %}
+            <div class="flash-message {{ get_flashed_messages()[0][0] }}">
+                {{ get_flashed_messages()[0][1] }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

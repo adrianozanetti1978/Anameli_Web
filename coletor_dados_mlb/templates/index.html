@@ -1,0 +1,102 @@
+# index.html
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coletor de Dados MLB</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: linear-gradient(45deg, cyan, yellow);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        form {
+            margin-top: 20px;
+            text-align: center;
+        }
+        input {
+            width: 300px;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            font-size: 15px;
+        }
+        button {
+            background-color: dodgerblue;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: deepskyblue;
+            cursor: pointer;
+        }
+        .resultados {
+            margin-top: 20px;
+            text-align: left;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Coletor de Dados MLB</h1>
+    <form method="post">
+        <input type="text" name="mlb_number" placeholder="Número MLB" required>
+        <button type="submit">Buscar Dados</button>
+    </form>
+
+    <div class="resultados">
+        {% if resultados %}
+            <h2>Resultados:</h2>
+            <p><strong>Endereço do Vendedor:</strong></p>
+            <p>Cidade: {{ resultados['Endereço do Vendedor'].Cidade }}</p>
+            <p>Estado: {{ resultados['Endereço do Vendedor'].Estado }}</p>
+            <p>País: {{ resultados['Endereço do Vendedor'].País }}</p>
+
+            <p><strong>Número de fotos:</strong> {{ resultados['Número de fotos'] }}</p>
+            {% if resultados['Fotos Válidas'] %}
+                <p><strong>Imagens com Resolução Incorreta:</strong></p>
+                <p>Quantidade: {{ resultados['Imagens com Resolução Incorreta'].Count }}</p>
+                <ul>
+                    {% for url in resultados['Imagens com Resolução Incorreta'].URLs %}
+                        <li>{{ url }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>{{ resultados['Imagens com Resolução Incorreta'] }}</p>
+            {% endif %}
+
+            <p><strong>Vídeos Disponíveis:</strong> {{ resultados['Vídeos Disponíveis'] }}</p>
+            {% if resultados['Vídeos Válidos'] %}
+                <p><strong>Vídeo IDs:</strong></p>
+                <ul>
+                    {% for video_id in resultados['Video IDs'] %}
+                        <li>{{ video_id }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Sem vídeos disponíveis.</p>
+            {% endif %}
+
+            <p><strong>Tags Faltantes:</strong> {{ resultados['Tags Faltantes'] | join(', ') }}</p>
+            <p><strong>Tags Ativas:</strong> {{ resultados['Tags Ativas'] | join(', ') }}</p>
+            <p><strong>Garantia:</strong> {{ resultados['Garantia'] }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
